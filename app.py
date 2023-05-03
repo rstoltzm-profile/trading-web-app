@@ -16,9 +16,18 @@ def load_data():
     return processed_data, status_data
 
 @app.route('/')
-def index():
-    processed_data, status_data = load_data()
-    return render_template("index.html", processed_data=processed_data.to_html(), status_data=status_data.to_html())
+def homepage():
+    return render_template("homepage.html")
+
+@app.route('/results')
+def results():
+    processed_data, _ = load_data()
+    return render_template("results.html", processed_data=processed_data.to_html())
+
+@app.route('/status')
+def status():
+    _, status_data = load_data()
+    return render_template("status.html", status_data=status_data.to_html())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
