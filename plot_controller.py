@@ -22,25 +22,56 @@ def create_close_hull_high_figure(processed_data, buy_date, buy_signal,
                                   hold_signal, wait_date, wait_signal):
     date = processed_data['date']
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=date, y=processed_data['close'],
-                             mode='lines', name='Close'))
-    fig.add_trace(go.Scatter(x=date, y=processed_data['hull_high'],
-                             mode='lines', name='Hull High'))
-    fig.add_trace(go.Scatter(x=buy_date, y=buy_signal+10,
-                             mode='markers', name='Buy',
-                             marker=dict(color='green', size=10)))
-    fig.add_trace(go.Scatter(x=sell_date, y=sell_signal+10,
-                             mode='markers', name='Sell',
-                             marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=hold_date, y=hold_signal+10,
-                             mode='markers', name='Hold',
-                             marker=dict(color='orange', size=3)))
-    fig.add_trace(go.Scatter(x=wait_date, y=wait_signal+10,
-                             mode='markers', name='Wait',
-                             marker=dict(color='yellow', size=3)))
-    fig.update_layout(title='Close and Hull High Plot',
-                      xaxis_title='Date',
-                      yaxis_title='Value')
+    fig.add_trace(go.Scatter(
+        x=date,
+        y=processed_data['close'],
+        mode='lines',
+        name='Close'
+        ))
+    fig.add_trace(go.Scatter(
+        x=date,
+        y=processed_data['hull_high'],
+        mode='lines',
+        name='Hull High'
+        ))
+    fig.add_trace(go.Scatter(
+        x=buy_date, y=buy_signal+10,
+        mode='markers',
+        name='Buy',
+        marker=dict(
+            color='green',
+            size=10)
+        ))
+    fig.add_trace(go.Scatter(
+        x=sell_date,
+        y=sell_signal+10,
+        mode='markers',
+        name='Sell',
+        marker=dict(
+            color='red',
+            size=10)
+        ))
+    fig.add_trace(go.Scatter(
+        x=hold_date, y=hold_signal+10,
+        mode='markers',
+        name='Hold',
+        marker=dict(
+            color='orange',
+            size=3)
+        ))
+    fig.add_trace(go.Scatter(
+        x=wait_date, y=wait_signal+10,
+        mode='markers',
+        name='Wait',
+        marker=dict(
+            color='yellow',
+            size=3)
+        ))
+    fig.update_layout(
+        title='Close and Hull High Plot',
+        xaxis_title='Date',
+        yaxis_title='Value'
+        )
     return fig
 
 
