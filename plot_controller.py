@@ -76,4 +76,5 @@ def interactive_plot():
 
 
 def interactive_plot_js():
+    # test comment
     return render_template("interactive_plot_js.html")
