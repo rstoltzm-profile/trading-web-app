@@ -89,7 +89,8 @@ def break_out_figure(processed_data):
         marker=dict(
             color='green',
             size=10,
-            symbol='triangle-up')
+            symbol='triangle-up',
+            standoff=5)
         ))
     fig.add_trace(go.Scatter(
         x=sell_date,
@@ -108,12 +109,12 @@ def break_out_figure(processed_data):
         name='Hold',
         marker=dict(
             color='orange',
-            size=10,
-            symbol='x',
+            size=5,
+            symbol='line-ns',
+            line_width=1.5,
             line=dict(
                 color='orange',
-                width=1
-            ))
+                width=1.5))
         ))
     fig.add_trace(go.Scatter(
         x=wait_date,
@@ -122,8 +123,12 @@ def break_out_figure(processed_data):
         name='Wait',
         marker=dict(
             color='blue',
-            size=8,
-            symbol='x')
+            size=5,
+            symbol='line-ns',
+            line_width=1.5,
+            line=dict(
+                color='blue',
+                width=1.5))
         ))
     fig.update_layout(
         title='Break Out Strategy',
