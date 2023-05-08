@@ -5,22 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Interactive Plot</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      function cb(selection) {
-          $.getJSON({
-              url: "/callback", data: { 'data': selection }, success: function (result) {
-                  Plotly.newPlot('chart', result, {staticPlot: true});;
-              }
-          });
+      function updatePlot(days) {
+          window.location.href = "/interactive_plot?days=" + days;
       }
-  </script>
+    </script>
+    
   </head>
   <body>
     <h1>Break Out Strategy</h1>
     <div id="chart" class="chart"></div>
-    <button onclick="filterData('30')">Last 30 days</button>
-    <button onclick="filterData('90')">Last 90 days</button>
-    <button onclick="filterData('all')">All time</button>
+    <button onclick="updatePlot('30')">Last 30 days</button>
+    <button onclick="updatePlot('90')">Last 90 days</button>
+    <button onclick="updatePlot('all')">All time</button>
     <script>
       d = {{ graph_json | safe }};
       Plotly.newPlot('chart', d, {});
