@@ -1,16 +1,13 @@
-from flask import Flask, render_template
+from flask import Flask
 from blueprints.plot_controller import plot_bp
 from blueprints.status_controller import status_bp
+from blueprints.homepage import home_bp
 
 app = Flask(__name__)
 
 app.register_blueprint(status_bp)
 app.register_blueprint(plot_bp)
-
-
-@app.route('/')
-def homepage():
-    return render_template("homepage.html")
+app.register_blueprint(home_bp)
 
 
 if __name__ == "__main__":
