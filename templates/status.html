@@ -1,13 +1,16 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Status</title>
-  </head>
-  <body>
-    <h1>TQQQ Break Out Status</h1>
-    {{ status_data | safe }}
-    <p><a href="/home">Back to homepage</a></p>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table View</title>
+    <!-- Include Bootstrap CSS for table styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+      <h2>Strategy Data</h2>
+      {% for index, row in table.iterrows() %}
+      <p><strong>{{ row['column_name'] }}</strong>: {{ row['value'] }}</p>
+      {% endfor %}
+  </div>
+</body>
 </html>
