@@ -2,6 +2,7 @@ from flask import Blueprint, render_template
 import plotly.graph_objects as go
 from blueprints.data_loader import load_data
 from datetime import timedelta, datetime
+from plotly.subplots import make_subplots
 
 
 plot_bp = Blueprint('plot_bp', __name__)
@@ -12,11 +13,8 @@ def interactive_plot():
     processed_data, _ = load_data()
     fig1 = break_out_figure(processed_data)
     fig1 = add_buttons_figure(fig1)
-    fig2 = break_out_figure2(processed_data)
-    fig2 = add_buttons_figure(fig2)
     with open('./templates/break_out_graph.html', 'w') as f:
         f.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
-        f.write(fig2.to_html(full_html=False, include_plotlyjs='cdn'))
     return render_template("break_out_graph.html")
 
 
@@ -32,7 +30,7 @@ def add_buttons_figure(fig):
         minreducedwidth=500,
         minreducedheight=300,
         width=600,
-        height=400,
+        height=800,
     )
     fig.update_layout(
         updatemenus=[
@@ -58,12 +56,12 @@ def add_buttons_figure(fig):
                             ]}]),
                 ]),
                 type="buttons",
-                direction="right",
+                direction="left",
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.25,
+                x=0.11,
                 xanchor="left",
-                y=1.25,
+                y=1.1,
                 yanchor="top"
             )
         ])
@@ -82,46 +80,58 @@ def break_out_figure(processed_data):
     y1 = processed_data['close']
     y2 = processed_data['hull_high']
 
+    y_buy1 = y1-y2
+    y3 = processed_data['tr']
+    y4 = processed_data['atr']
+    y_buy2 = y3 - y4
+    y_sum = y_buy1+y_buy2
+
     # Make Figure
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
+    # fig = go.Figure()
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, shared_yaxes=False)
+    fig.add_scatter(
         x=x,
         y=y1,
         mode='lines',
-        name='Close'
-        ))
-    fig.add_trace(go.Scatter(
+        name='Close',
+        row=1, col=1
+        )
+    fig.add_scatter(
         x=x,
         y=y2,
         mode='lines',
-        name='Hull High'
-        ))
-    fig.add_trace(go.Scatter(
+        name='Hull High',
+        row=1, col=1
+        )
+    fig.add_scatter(
         x=buy_date,
         y=buy_signal,
         mode='markers',
         name='Buy',
+        row=1, col=1,
         marker=dict(
             color='green',
             size=10,
             symbol='triangle-up',
             standoff=5)
-        ))
-    fig.add_trace(go.Scatter(
+        )
+    fig.add_scatter(
         x=sell_date,
         y=sell_signal,
         mode='markers',
         name='Sell',
+        row=1, col=1,
         marker=dict(
             color='red',
             size=10,
             symbol='triangle-down')
-        ))
-    fig.add_trace(go.Scatter(
+        )
+    fig.add_scatter(
         x=hold_date,
         y=hold_signal,
         mode='markers',
         name='Hold',
+        row=1, col=1,
         marker=dict(
             color='orange',
             size=5,
@@ -130,12 +140,13 @@ def break_out_figure(processed_data):
             line=dict(
                 color='orange',
                 width=1.5))
-        ))
-    fig.add_trace(go.Scatter(
+        )
+    fig.add_scatter(
         x=wait_date,
         y=wait_signal,
         mode='markers',
         name='Wait',
+        row=1, col=1,
         marker=dict(
             color='blue',
             size=5,
@@ -144,7 +155,26 @@ def break_out_figure(processed_data):
             line=dict(
                 color='blue',
                 width=1.5))
-        ))
+        )
+    fig.add_scatter(
+        x=x,
+        y=y_buy1,
+        mode='markers',
+        name='signal 1',
+        fill='tonexty',
+        #stackgroup='one',
+        row=2, col=1
+        )
+    fig.add_scatter(
+        x=x,
+        y=y_buy2,
+        mode='markers',
+        name='signal 2',
+        fill='tonexty',
+        #stackgroup='one',
+        row=2, col=1
+        )
+    fig.add_hline(y=0, row=2, col=1, line_width=1, line_color="green")
     fig.update_layout(
         title='Break Out Strategy',
         xaxis_title='Date',
@@ -152,43 +182,3 @@ def break_out_figure(processed_data):
         )
     return fig
 
-
-def break_out_figure2(processed_data):
-
-    # Setup Data
-    x = processed_data['date']
-    y1 = processed_data['close']
-    y2 = processed_data['hull_high']
-    y = y1-y2
-    y3 = processed_data['tr']
-    y4 = processed_data['atr']
-    y2 = y3 - y4
-    y3 = y+y2
-
-    # Make Figure
-    fig = go.Figure()
-    fig.add_hline(y=0, line_width=1, line_color="green")
-    fig.add_trace(go.Scatter(
-        x=x,
-        y=y,
-        mode='lines',
-        name='signal 1'
-        ))
-    fig.add_trace(go.Scatter(
-        x=x,
-        y=y2,
-        mode='lines',
-        name='signal 2'
-        ))
-    fig.add_trace(go.Scatter(
-        x=x,
-        y=y3,
-        mode='lines',
-        name='sum'
-        ))
-    fig.update_layout(
-        title='Buy Indicators',
-        xaxis_title='Date',
-        yaxis_title='Value',
-        )
-    return fig
