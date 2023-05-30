@@ -1,10 +1,7 @@
-from flask import Blueprint, render_template, request
-import json
-import plotly
+from flask import Blueprint, render_template
 import plotly.graph_objects as go
 from blueprints.data_loader import load_data
-import pandas as pd
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 plot_bp = Blueprint('plot_bp', __name__)
@@ -12,33 +9,65 @@ plot_bp = Blueprint('plot_bp', __name__)
 
 @plot_bp.route('/interactive_plot')
 def interactive_plot():
-    days = request.args.get('days', default=None)
     processed_data, _ = load_data()
-    if days == 'all':
-        days = None
-    filtered_data = filter_data(processed_data, days)
-    fig1 = break_out_figure(filtered_data)
-    graph_json = json.dumps(fig1, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("interactive_plot.html", graph_json=graph_json)
-
-
-def filter_data(processed_data, days):
-    if days is None or days == 'all':
-        return processed_data
-
-    days = int(days)
-    print(days, flush=True)
-    processed_data['date'] = pd.to_datetime(processed_data['date'])
-    end_date = pd.to_datetime(processed_data['date'].max())
-    start_date = end_date - timedelta(days=days)
-    filtered_data = processed_data.loc[processed_data['date'] >= start_date]
-    return filtered_data
+    fig1 = break_out_figure(processed_data)
+    fig1 = add_buttons_figure(fig1)
+    fig2 = break_out_figure2(processed_data)
+    fig2 = add_buttons_figure(fig2)
+    fig3 = break_out_figure3(processed_data)
+    fig3 = add_buttons_figure(fig3)
+    with open('./templates/break_out_graph.html', 'w') as f:
+        f.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
+        f.write(fig2.to_html(full_html=False, include_plotlyjs='cdn'))
+        f.write(fig3.to_html(full_html=False, include_plotlyjs='cdn'))
+    return render_template("break_out_graph.html")
 
 
 def load_signal_data(processed_data, signal):
     date = processed_data.loc[processed_data['signal'] == signal, 'date']
     close = processed_data.loc[processed_data['signal'] == signal, 'close']
     return date, close
+
+
+def add_buttons_figure(fig):
+    fig.update_layout(
+        width=600,
+        height=400,
+    )
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                buttons=list([
+                    dict(
+                        label="Last 14 days",
+                        method="relayout",
+                        args=[{"xaxis.range": [
+                            datetime.now() - timedelta(days=14), datetime.now()
+                            ]}]),
+                    dict(
+                        label="Last 30 days",
+                        method="relayout",
+                        args=[{"xaxis.range": [
+                            datetime.now() - timedelta(days=30), datetime.now()
+                            ]}]),
+                    dict(
+                        label="Last 90 days",
+                        method="relayout",
+                        args=[{"xaxis.range": [
+                            datetime.now() - timedelta(days=90), datetime.now()
+                            ]}]),
+                ]),
+                type="buttons",
+                direction="right",
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.25,
+                xanchor="left",
+                y=1.25,
+                yanchor="top"
+            )
+        ])
+    return fig
 
 
 def break_out_figure(processed_data):
@@ -52,8 +81,6 @@ def break_out_figure(processed_data):
     x = processed_data['date']
     y1 = processed_data['close']
     y2 = processed_data['hull_high']
-    y3 = processed_data['tr']
-    y4 = processed_data['atr']
 
     # Make Figure
     fig = go.Figure()
@@ -68,18 +95,6 @@ def break_out_figure(processed_data):
         y=y2,
         mode='lines',
         name='Hull High'
-        ))
-    fig.add_trace(go.Scatter(
-        x=x,
-        y=y3,
-        mode='lines',
-        name='TR'
-        ))
-    fig.add_trace(go.Scatter(
-        x=x,
-        y=y4,
-        mode='lines',
-        name='ATR'
         ))
     fig.add_trace(go.Scatter(
         x=buy_date,
@@ -133,6 +148,60 @@ def break_out_figure(processed_data):
     fig.update_layout(
         title='Break Out Strategy',
         xaxis_title='Date',
-        yaxis_title='Value'
+        yaxis_title='Value',
+        )
+    return fig
+
+
+def break_out_figure2(processed_data):
+
+    # Setup Data
+    x = processed_data['date']
+    y3 = processed_data['tr']
+    y4 = processed_data['atr']
+    y = y3 - y4
+
+    # Make Figure
+    fig = go.Figure()
+    fig.add_hline(y=0, line_width=1, line_color="red")
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        mode='lines',
+        name='value'
+        ))
+    fig.update_layout(
+        title='TR - ATR',
+        xaxis_title='Date',
+        yaxis_title='Value',
+        width=600,
+        height=500,
+        )
+    return fig
+
+
+def break_out_figure3(processed_data):
+
+    # Setup Data
+    x = processed_data['date']
+    y3 = processed_data['close']
+    y4 = processed_data['hull_high']
+    y = y3-y4
+
+    # Make Figure
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        mode='lines',
+        name='Value'
+        ))
+    fig.add_hline(y=0, line_width=1, line_color="red")
+    fig.update_layout(
+        title='Close - Hull High',
+        xaxis_title='Date',
+        yaxis_title='Value',
+        width=600,
+        height=500,
         )
     return fig

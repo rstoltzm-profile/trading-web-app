@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-data_directory = "/home/ec2-user/backtrader_app/data"
+data_directory = "../backtrader_app/data"
 
 
 def load_data():
