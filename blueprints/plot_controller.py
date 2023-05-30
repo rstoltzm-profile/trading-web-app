@@ -25,13 +25,34 @@ def load_signal_data(processed_data, signal):
 
 
 def add_buttons_figure(fig):
+    fig.update_xaxes(
+        showgrid=False,
+        mirror=True,
+        ticks='outside',
+        showline=True,
+        linecolor='#444',
+    )
+    fig.update_yaxes(
+        showgrid=False,
+        mirror=True,
+        ticks='outside',
+        showline=True,
+        linecolor='#444',
+    )
     fig.update_layout(
-        margin=dict(t=50),
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgb(234,242,250)',
         autosize=False,
         minreducedwidth=500,
         minreducedheight=300,
         width=600,
         height=800,
+        legend=dict(
+            yanchor="middle",
+            y=0.5,
+            xanchor="right",
+            x=2,
+        )
     )
     fig.update_layout(
         updatemenus=[
@@ -55,14 +76,19 @@ def add_buttons_figure(fig):
                         args=[{"xaxis.range": [
                             datetime.now() - timedelta(days=90), datetime.now()
                             ]}]),
+                    dict(
+                        label="Reset",
+                        method="relayout",
+                        args=[{"xaxis.autorange": True
+                            }]),
                 ]),
                 type="buttons",
                 direction="left",
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.11,
+                x=0,
                 xanchor="left",
-                y=1.1,
+                y=1.15,
                 yanchor="top"
             )
         ])
@@ -89,20 +115,30 @@ def break_out_figure(processed_data):
 
     # Make Figure
     # fig = go.Figure()
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, shared_yaxes=False)
+    fig = make_subplots(
+        rows=2,
+        cols=1,
+        shared_xaxes=True,
+        shared_yaxes=False,
+        vertical_spacing=0.07,
+        x_title='Date',
+        subplot_titles=('BreakOut Algo',  'Buy Signals')
+    )
     fig.add_scatter(
         x=x,
         y=y1,
         mode='lines',
         name='Close',
-        row=1, col=1
+        row=1, col=1,
+        legendgroup = '1'
         )
     fig.add_scatter(
         x=x,
         y=y2,
         mode='lines',
         name='Hull High',
-        row=1, col=1
+        row=1, col=1,
+        legendgroup = '1'
         )
     fig.add_scatter(
         x=buy_date,
@@ -113,8 +149,7 @@ def break_out_figure(processed_data):
         marker=dict(
             color='green',
             size=10,
-            symbol='triangle-up',
-            standoff=5)
+            symbol='triangle-up')
         )
     fig.add_scatter(
         x=sell_date,
@@ -163,6 +198,7 @@ def break_out_figure(processed_data):
         mode='markers',
         name='signal 1',
         fill='tonexty',
+        legendgroup = '2',
         #stackgroup='one',
         row=2, col=1
         )
@@ -176,10 +212,5 @@ def break_out_figure(processed_data):
         row=2, col=1
         )
     fig.add_hline(y=0, row=2, col=1, line_width=1, line_color="green")
-    fig.update_layout(
-        title='Break Out Strategy',
-        xaxis_title='Date',
-        yaxis_title='Value',
-        )
     return fig
 
