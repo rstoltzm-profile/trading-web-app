@@ -26,6 +26,7 @@ def load_signal_data(processed_data, signal):
 
 def add_buttons_figure(fig):
     fig.update_layout(
+        margin=dict(t=50),
         autosize=False,
         minreducedwidth=500,
         minreducedheight=300,
