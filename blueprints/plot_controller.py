@@ -14,12 +14,9 @@ def interactive_plot():
     fig1 = add_buttons_figure(fig1)
     fig2 = break_out_figure2(processed_data)
     fig2 = add_buttons_figure(fig2)
-    fig3 = break_out_figure3(processed_data)
-    fig3 = add_buttons_figure(fig3)
     with open('./templates/break_out_graph.html', 'w') as f:
         f.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
         f.write(fig2.to_html(full_html=False, include_plotlyjs='cdn'))
-        f.write(fig3.to_html(full_html=False, include_plotlyjs='cdn'))
     return render_template("break_out_graph.html")
 
 
@@ -31,6 +28,9 @@ def load_signal_data(processed_data, signal):
 
 def add_buttons_figure(fig):
     fig.update_layout(
+        autosize=False,
+        minreducedwidth=500,
+        minreducedheight=300,
         width=600,
         height=400,
     )
@@ -157,51 +157,38 @@ def break_out_figure2(processed_data):
 
     # Setup Data
     x = processed_data['date']
+    y1 = processed_data['close']
+    y2 = processed_data['hull_high']
+    y = y1-y2
     y3 = processed_data['tr']
     y4 = processed_data['atr']
-    y = y3 - y4
+    y2 = y3 - y4
+    y3 = y+y2
 
     # Make Figure
     fig = go.Figure()
-    fig.add_hline(y=0, line_width=1, line_color="red")
+    fig.add_hline(y=0, line_width=1, line_color="green")
     fig.add_trace(go.Scatter(
         x=x,
         y=y,
         mode='lines',
-        name='value'
+        name='signal 1'
         ))
-    fig.update_layout(
-        title='TR - ATR',
-        xaxis_title='Date',
-        yaxis_title='Value',
-        width=600,
-        height=500,
-        )
-    return fig
-
-
-def break_out_figure3(processed_data):
-
-    # Setup Data
-    x = processed_data['date']
-    y3 = processed_data['close']
-    y4 = processed_data['hull_high']
-    y = y3-y4
-
-    # Make Figure
-    fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=x,
-        y=y,
+        y=y2,
         mode='lines',
-        name='Value'
+        name='signal 2'
         ))
-    fig.add_hline(y=0, line_width=1, line_color="red")
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y3,
+        mode='lines',
+        name='sum'
+        ))
     fig.update_layout(
-        title='Close - Hull High',
+        title='Buy Indicators',
         xaxis_title='Date',
         yaxis_title='Value',
-        width=600,
-        height=500,
         )
     return fig
