@@ -1,14 +1,14 @@
 from flask import Blueprint, render_template
 import plotly.graph_objects as go
-from blueprints.data_loader import load_data
+from blueprints.data_loader_1 import load_data
 from datetime import timedelta, datetime
 from plotly.subplots import make_subplots
 
 
-plot_bp = Blueprint('plot_bp', __name__)
+plot_bp_1 = Blueprint('plot_bp_1', __name__)
 
 
-@plot_bp.route('/interactive_plot')
+@plot_bp_1.route('/interactive_plot_1')
 def interactive_plot():
     processed_data, _ = load_data()
     fig1 = break_out_figure(processed_data)
@@ -213,4 +213,3 @@ def break_out_figure(processed_data):
         )
     fig.add_hline(y=0, row=2, col=1, line_width=1, line_color="green")
     return fig
-
